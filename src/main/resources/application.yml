@@ -1,0 +1,11 @@
+spring:
+  datasource:
+    driverClassName: com.mysql.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/usertutorial
+    username: dtatkison
+    password: Onegodchurch1
+  jpa:
+    hibernate.ddl-auto: update
+    show-sql: true
+
+  server.ssl.enabled: false
