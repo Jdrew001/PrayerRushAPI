@@ -2,6 +2,8 @@ package com.dtatkison.prayerrush.rushapi.model;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "user")
@@ -13,15 +15,12 @@ public class User {
     private Integer id;
 
     @Column(name = "firstname")
-    @NotNull
     private String firstname;
 
     @Column(name = "lastname")
-    @NotNull
     private String lastname;
 
     @Column(name = "username")
-    @NotNull
     private String username;
 
     @Column(name = "email")
@@ -36,9 +35,21 @@ public class User {
     @Column(name = "salt")
     private String salt;
 
+    @OneToMany(fetch = FetchType.LAZY)
+    @JoinColumn(name = "friendId")
+    private List<Friend> friends = new ArrayList<>();
+
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "statId")
-    private Stats stat;
+    @JoinColumn(name = "listId")
+    private com.dtatkison.prayerrush.rushapi.model.List list;
+
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "goalId")
+    private List<Goal> goals = new ArrayList<>();
+
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "id")
+    private List<UserPray> userPrays = new ArrayList<>();
 
     public User() {}
 
@@ -51,6 +62,14 @@ public class User {
         this.email = email;
     }
 
+    public User(String email, String password, String salt)
+    {
+        this.username = username;
+        this.email = email;
+        this.password = password;
+        this.salt = salt;
+    }
+
     public User(User user)
     {
         this.id = user.id;
@@ -60,7 +79,6 @@ public class User {
         this.email = user.email;
         this.password = user.password;
         this.salt = user.salt;
-        this.stat = user.stat;
     }
 
     public Integer getId() {
@@ -119,11 +137,35 @@ public class User {
         this.salt = salt;
     }
 
-    public Stats getStatId() {
-        return stat;
+    public List<Friend> getFriends() {
+        return friends;
     }
 
-    public void setStatId(Stats stat) {
-        this.stat = stat;
+    public void setFriends(List<Friend> friends) {
+        this.friends = friends;
+    }
+
+    public com.dtatkison.prayerrush.rushapi.model.List getList() {
+        return list;
+    }
+
+    public void setList(com.dtatkison.prayerrush.rushapi.model.List list) {
+        this.list = list;
+    }
+
+    public List<Goal> getGoals() {
+        return goals;
+    }
+
+    public void setGoals(List<Goal> goals) {
+        this.goals = goals;
+    }
+
+    public List<UserPray> getUserPrays() {
+        return userPrays;
+    }
+
+    public void setUserPrays(List<UserPray> userPrays) {
+        this.userPrays = userPrays;
     }
 }
