@@ -3,11 +3,11 @@ package com.dtatkison.prayerrush.rushapi.service;
 import com.dtatkison.prayerrush.rushapi.model.JwtUserDetails;
 import com.dtatkison.prayerrush.rushapi.model.User;
 import com.dtatkison.prayerrush.rushapi.repository.UserRepository;
-import com.dtatkison.prayerrush.rushapi.security.ExceptionHandling.AuthenticationFailedError;
-import com.dtatkison.prayerrush.rushapi.security.ExceptionHandling.EmailNotFoundException;
+import com.dtatkison.prayerrush.rushapi.security.ExceptionHandling.*;
 import com.dtatkison.prayerrush.rushapi.security.PasswordUtils;
-import com.dtatkison.prayerrush.rushapi.security.ExceptionHandling.RegistrationError;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import javax.swing.text.html.Option;
@@ -57,4 +57,56 @@ public class UserService {
 
         return passwordMatch;
     }
+
+    public User loadByEmail(String email)
+    {
+        Optional<User> user = userRepository.findByEmail(email);
+        user.orElseThrow(() -> new EmailNotFoundException("The email address given was not found"));
+
+        return user.map(JwtUserDetails::new).get();
+    }
+
+    public User updateUserInformation(User user)
+    {
+        Optional<User> u = this.userRepository.findById(user.getId());
+        u.orElseThrow(() -> new UserException("User not found"));
+
+        u.get().setFirstname(user.getFirstname());
+        u.get().setLastname(user.getLastname());
+        u.get().setUsername(user.getUsername());
+        u.get().setEmail(user.getEmail());
+
+        User newUser = this.userRepository.save(u.get());
+        User resultU = new User(newUser.getId(), newUser.getFirstname(), newUser.getLastname(), newUser.getUsername(), newUser.getEmail());
+
+        return resultU;
+    }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -4,6 +4,7 @@ import com.dtatkison.prayerrush.rushapi.model.User;
 import com.dtatkison.prayerrush.rushapi.security.JwtGenerator;
 import com.dtatkison.prayerrush.rushapi.service.UserService;
 import com.google.gson.Gson;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,6 +16,7 @@ public class LoginController {
     private JwtGenerator jwtGenerator;
     private UserService userService;
 
+    @Autowired
     public LoginController(JwtGenerator jwtGenerator, UserService userService)
     {
         this.jwtGenerator = jwtGenerator;

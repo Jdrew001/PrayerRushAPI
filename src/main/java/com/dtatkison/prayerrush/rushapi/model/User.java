@@ -36,19 +36,19 @@ public class User {
     private String salt;
 
     @OneToMany(fetch = FetchType.LAZY)
-    @JoinColumn(name = "friendId")
+    @JoinColumn(name = "userId")
     private List<Friend> friends = new ArrayList<>();
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "listId")
-    private com.dtatkison.prayerrush.rushapi.model.List list;
+    @OneToMany(fetch = FetchType.LAZY)
+    @JoinColumn(name = "userId")
+    private List<com.dtatkison.prayerrush.rushapi.model.List> lists = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "goalId")
+    @JoinColumn(name = "userId")
     private List<Goal> goals = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "id")
+    @JoinColumn(name = "userId")
     private List<UserPray> userPrays = new ArrayList<>();
 
     public User() {}
@@ -145,12 +145,12 @@ public class User {
         this.friends = friends;
     }
 
-    public com.dtatkison.prayerrush.rushapi.model.List getList() {
-        return list;
+    public List<com.dtatkison.prayerrush.rushapi.model.List> getList() {
+        return lists;
     }
 
-    public void setList(com.dtatkison.prayerrush.rushapi.model.List list) {
-        this.list = list;
+    public void addToList(com.dtatkison.prayerrush.rushapi.model.List list) {
+        this.lists.add(list);
     }
 
     public List<Goal> getGoals() {
