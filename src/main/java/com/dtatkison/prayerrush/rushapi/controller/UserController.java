@@ -29,6 +29,11 @@ public class UserController {
         return gson.toJson(new JsonToken(jwtGenerator.generate(this.userService.loadByEmail(user.getEmail()))));
     }
 
+    public User checkUserProfile(@RequestBody final User user)
+    {
+        return null;
+    }
+
     @PostMapping("/update")
     public User updateUser(@RequestBody User user)
     {

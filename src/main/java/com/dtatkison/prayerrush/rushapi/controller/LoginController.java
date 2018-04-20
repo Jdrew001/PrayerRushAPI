@@ -5,13 +5,13 @@ import com.dtatkison.prayerrush.rushapi.security.JwtGenerator;
 import com.dtatkison.prayerrush.rushapi.service.UserService;
 import com.google.gson.Gson;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/login")
+@RequestMapping
+@CrossOrigin //TODO research pitfalls of putting this on here
 public class LoginController {
     private JwtGenerator jwtGenerator;
     private UserService userService;
@@ -23,17 +23,30 @@ public class LoginController {
         this.userService = userService;
     }
 
-    @PostMapping
+    @PostMapping("/login")
     public String generate(@RequestBody final User user)
     {
         Gson gson = new Gson();
-        if(this.userService.loadByEmailAndPassword(user.getEmail(), user.getPassword()))
-        {
-            String json = gson.toJson(new JsonToken(jwtGenerator.generate(user)));
-            return json;
-        }
+        User u = this.userService.loadByEmailAndPassword(user.getEmail(), user.getPassword());
+        String json = gson.toJson(new JsonToken(jwtGenerator.generate(u)));
+        return json;
+    }
 
-        return null;
+    @GetMapping("/api")
+    public ResponseEntity<?> checkToken()
+    {
+        Gson gson = new Gson();
+        String json = gson.toJson(new Success("Success"));
+        return new ResponseEntity<>(json, HttpStatus.OK);
+    }
+
+    public class Success
+    {
+        private String success;
+        public Success(String success)
+        {
+            this.success = success;
+        }
     }
 
     public class JsonToken

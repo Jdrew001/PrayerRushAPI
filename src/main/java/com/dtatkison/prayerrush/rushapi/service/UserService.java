@@ -45,7 +45,7 @@ public class UserService {
         return newUser.map(JwtUserDetails::new).get();
     }
 
-    public boolean loadByEmailAndPassword(String email, String password) throws EmailNotFoundException
+    public User loadByEmailAndPassword(String email, String password) throws EmailNotFoundException
     {
         Optional<User> user = userRepository.findByEmail(email);
         user.orElseThrow(() -> new EmailNotFoundException("The email address given was not found"));
@@ -55,7 +55,7 @@ public class UserService {
         if(!passwordMatch)
             throw new AuthenticationFailedError("Email and Password not authenticated");
 
-        return passwordMatch;
+        return user.map(JwtUserDetails::new).get();
     }
 
     public User loadByEmail(String email)
