@@ -14,6 +14,10 @@ public class List {
     @Column(name = "listId")
     private Integer listId;
 
+    @Column(name = "item")
+    @NotNull
+    private String item;
+
     @Column(name = "date")
     @NotNull
     private Date date;

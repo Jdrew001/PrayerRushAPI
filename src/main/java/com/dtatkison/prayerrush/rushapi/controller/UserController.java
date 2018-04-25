@@ -1,12 +1,17 @@
 package com.dtatkison.prayerrush.rushapi.controller;
 
 import com.dtatkison.prayerrush.rushapi.model.User;
+import com.dtatkison.prayerrush.rushapi.model.json.Friend;
+import com.dtatkison.prayerrush.rushapi.model.json.Response;
 import com.dtatkison.prayerrush.rushapi.security.JwtGenerator;
 import com.dtatkison.prayerrush.rushapi.service.UserService;
 import com.google.gson.Gson;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/user")
@@ -34,6 +39,21 @@ public class UserController {
         return null;
     }
 
+    @PostMapping("/check")
+    public ResponseEntity<String> checkUser(@RequestBody final User user)
+    {
+        Gson gson = new Gson();
+        User u = this.userService.loadByEmail(user.getEmail());
+
+        if(u.getUsername() == null || u.getFirstname() == null || u.getLastname() == null)
+        {
+
+            return new ResponseEntity<String>(gson.toJson(new Response("Information Null", false)), HttpStatus.OK);
+        } else {
+            return new ResponseEntity<String>(gson.toJson(new Response("Information Valid", true)), HttpStatus.OK);
+        }
+    }
+
     @PostMapping("/update")
     public User updateUser(@RequestBody User user)
     {
@@ -47,5 +67,32 @@ public class UserController {
         {
             this.token = token;
         }
+    }
+
+    public class Success
+    {
+        private String successMessage;
+
+        public void setSuccessMessage(String successMessage) {
+            this.successMessage = successMessage;
+        }
+    }
+
+    @PostMapping("/friends")
+    public List<User> getUserFriends(@RequestBody final Integer id)
+    {
+        List<User> u = this.userService.getUserFriends(id);
+
+        for (User user: u) {
+            System.out.println(user.getUsername());
+        }
+
+        return this.userService.getUserFriends(id);
+    }
+
+    @PostMapping("/friend/add")
+    public ResponseEntity<?> addUserFriends(@RequestBody Friend friend)
+    {
+        return this.userService.addNewFriend(friend.username, friend.friendUsername);
     }
 }
