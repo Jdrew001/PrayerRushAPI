@@ -50,7 +50,7 @@ public class UserController {
 
             return new ResponseEntity<String>(gson.toJson(new Response("Information Null", false)), HttpStatus.OK);
         } else {
-            return new ResponseEntity<String>(gson.toJson(new Response("Information Valid", true)), HttpStatus.OK);
+            return new ResponseEntity<String>(gson.toJson(u), HttpStatus.OK);
         }
     }
 
