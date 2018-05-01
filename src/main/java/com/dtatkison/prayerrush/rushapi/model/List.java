@@ -14,9 +14,13 @@ public class List {
     @Column(name = "listId")
     private Integer listId;
 
-    @Column(name = "item")
+    @Column(name = "name")
     @NotNull
-    private String item;
+    private String name;
+
+    @Column(name = "description")
+    @NotNull
+    private String description;
 
     @Column(name = "date")
     @NotNull
@@ -26,10 +30,19 @@ public class List {
     {
     }
 
-    public List(Integer id, Date date, java.util.List<List> items)
+    public List(List list) {
+        this.listId = list.listId;
+        this.name = list.name;
+        this.description = list.description;
+        this.date = list.date;
+    }
+
+    public List(Integer id, Date date, String name, String description)
     {
         this.listId = id;
         this.date = date;
+        this.name = name;
+        this.description = description;
     }
 
     public Integer getListId() {
@@ -46,5 +59,21 @@ public class List {
 
     public void setDate(Date date) {
         this.date = date;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }

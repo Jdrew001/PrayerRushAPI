@@ -41,7 +41,7 @@ public class User {
             inverseJoinColumns={@JoinColumn(name="user_id")})
     private List<User> userFriends = new ArrayList<User>();
 
-    @OneToMany(fetch = FetchType.LAZY)
+    @OneToMany(fetch = FetchType.LAZY, cascade = { CascadeType.ALL })
     @JoinColumn(name = "userId")
     private List<com.dtatkison.prayerrush.rushapi.model.List> lists = new ArrayList<>();
 
@@ -141,6 +141,10 @@ public class User {
 
     public void addToList(com.dtatkison.prayerrush.rushapi.model.List list) {
         this.lists.add(list);
+    }
+
+    public void removeFromList(int index) {
+        this.lists.remove(index);
     }
 
     public List<Goal> getGoals() {
