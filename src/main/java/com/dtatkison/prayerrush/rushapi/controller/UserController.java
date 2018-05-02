@@ -79,20 +79,20 @@ public class UserController {
     }
 
     @PostMapping("/friends")
-    public List<User> getUserFriends(@RequestBody final Integer id)
+    public List<User> getUserFriends(@RequestBody final User user)
     {
-        List<User> u = this.userService.getUserFriends(id);
+        List<User> u = this.userService.getUserFollowers(user.getEmail());
 
-        for (User user: u) {
+        for (User newUser: u) {
             System.out.println(user.getUsername());
         }
 
-        return this.userService.getUserFriends(id);
+        return this.userService.getUserFollowers(user.getEmail());
     }
 
-    @PostMapping("/friend/add")
-    public ResponseEntity<?> addUserFriends(@RequestBody Friend friend)
+    @PostMapping("/friend/add/{email}")
+    public List<User> addUserFriends(@RequestBody User friend, @PathVariable("email") String email)
     {
-        return this.userService.addNewFriend(friend.username, friend.friendUsername);
+        return this.userService.addUserFollowers(email, friend);
     }
 }

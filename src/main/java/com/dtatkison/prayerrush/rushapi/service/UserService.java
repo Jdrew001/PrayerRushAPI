@@ -88,30 +88,42 @@ public class UserService {
         return resultU;
     }
 
-    public List<User> getUserFriends(Integer id)
+    public List<User> getUserFollowers(String email)
     {
             //with the user id, get the
-            List<User> friends = new ArrayList<>();
-            User user = this.userRepository.findById(id).map(User::new).get();
-        for (User u: user.getUserFriends()) {
-            friends.add(u);
+        Optional<User> user = this.userRepository.findByEmail(email);
+        user.orElseThrow(() -> new UserException("User not found"));
+        for (User tempUser: user.get().getFollowers()) {
+            tempUser.removeAllLists();
+            tempUser.setPassword("");
+            tempUser.setSalt("");
         }
-        return friends;
+
+        return user.get().getFollowers();
     }
 
-    public ResponseEntity<?> addNewFriend(String username, String friend)
+    public List<User> addUserFollowers(String mainEmail, User follower)
     {
-        Optional<User> user = this.userRepository.findByUsername(username);
-        Optional<User> friendUser = this.userRepository.findByUsername(friend);
+        Optional<User> user = this.userRepository.findByEmail(mainEmail);
+        Optional<User> friendUser = this.userRepository.findByEmail(follower.getEmail());
+
         user.orElseThrow(() -> new UserException("Main user not found"));
         user.orElseThrow(() -> new UserException("Friend User not found"));
-        User u = user.map(User::new).get();
-        u.addFriend(friendUser.map(User::new).get());
-        this.userRepository.save(u);
+        User u = user.get();
 
-        Gson gson = new Gson();
-        String json = gson.toJson(new UserService.Success("Success"));
-        return new ResponseEntity<>(json, HttpStatus.OK);
+        if(!u.getFollowers().contains(friendUser.get()))
+        {
+            u.getFollowers().add(friendUser.get());
+            friendUser.get().getFollowers().add(user.get());
+            this.userRepository.save(u);
+            this.userRepository.save(friendUser.get());
+
+            Gson gson = new Gson();
+            String json = gson.toJson(new UserService.Success("Success"));
+            return u.getFollowers();
+        } else {
+            throw new UserException("User is already friends with that person");
+        }
     }
 
     public class Success

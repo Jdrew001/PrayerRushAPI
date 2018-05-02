@@ -1,5 +1,8 @@
 package com.dtatkison.prayerrush.rushapi.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.hibernate.annotations.FilterJoinTable;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
@@ -36,10 +39,15 @@ public class User {
     private String salt;
 
     @ManyToMany(cascade={CascadeType.ALL})
-    @JoinTable(name="User_Friend",
-            joinColumns={@JoinColumn(name="friend_id")},
-            inverseJoinColumns={@JoinColumn(name="user_id")})
-    private List<User> userFriends = new ArrayList<User>();
+    @JsonIgnore
+    @JoinTable(name="friend",
+        joinColumns = {@JoinColumn(name = "userId", referencedColumnName = "userId")},
+        inverseJoinColumns = {@JoinColumn(name = "friendId", referencedColumnName = "userId")})
+    private List<User> followers = new ArrayList<>();
+
+    @ManyToMany(mappedBy = "followers", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private List<User> following = new ArrayList<>();
 
     @OneToMany(fetch = FetchType.LAZY, cascade = { CascadeType.ALL })
     @JoinColumn(name = "userId")
@@ -135,10 +143,6 @@ public class User {
         this.salt = salt;
     }
 
-    public List<com.dtatkison.prayerrush.rushapi.model.List> getList() {
-        return lists;
-    }
-
     public void addToList(com.dtatkison.prayerrush.rushapi.model.List list) {
         this.lists.add(list);
     }
@@ -155,24 +159,27 @@ public class User {
         this.goals = goals;
     }
 
-    public List<User> getUserFriends() {
-        return userFriends;
+    public List<User> getFollowers() {
+        return followers;
     }
 
-    public void setUserFriends(List<User> userFriends) {
-        this.userFriends = userFriends;
+    public void setFollowers(List<User> followers) {
+        this.followers = followers;
     }
 
-    public void addFriend(User u)
-    {
-        this.userFriends.add(u);
+    public List<User> getFollowing() {
+        return following;
+    }
+
+    public void setFollowing(List<User> following) {
+        this.following = following;
     }
 
     public List<com.dtatkison.prayerrush.rushapi.model.List> getLists() {
         return lists;
     }
 
-    public void setLists(List<com.dtatkison.prayerrush.rushapi.model.List> lists) {
-        this.lists = lists;
+    public void removeAllLists() {
+        this.getLists().clear();
     }
 }
