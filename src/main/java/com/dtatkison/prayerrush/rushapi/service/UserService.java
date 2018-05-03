@@ -88,6 +88,33 @@ public class UserService {
         return resultU;
     }
 
+    public List<User> searchedUsers(User user, String email)
+    {
+        List<User> users = new ArrayList<>();
+        List<User> requestedUsers = getPendingFriendsRequested(email);
+        List<User> friends = getUserFollowers(email);
+        //user has passed in an email, making the search easy
+        if(user.getEmail().equals(email))
+            return users;
+
+        for (User tempUser: requestedUsers)
+            if(user.getEmail().equals(tempUser.getEmail()))
+                return users;
+
+        for(User tempUser: friends) 
+            if(user.getEmail().equals(tempUser.getEmail()))
+                return users;
+
+            Optional<User> u = this.userRepository.findByEmail(user.getEmail());
+
+            u.get().setPassword("");
+            u.get().setSalt("");
+            u.get().removeAllLists();
+            users.add(u.get());
+
+            return users;
+    }
+
     //get user followers
     public List<User> getUserFollowers(String email)
     {

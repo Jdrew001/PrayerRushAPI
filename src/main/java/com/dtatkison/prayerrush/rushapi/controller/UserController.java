@@ -77,6 +77,11 @@ public class UserController {
             this.successMessage = successMessage;
         }
     }
+    @PostMapping("/search/{email}")
+    public List<User> getSearchedUser(@RequestBody User user, @PathVariable("email") String email)
+    {
+        return this.userService.searchedUsers(user, email);
+    }
 
     @PostMapping("/friends")
     public List<User> getUserFriends(@RequestBody final User user)
