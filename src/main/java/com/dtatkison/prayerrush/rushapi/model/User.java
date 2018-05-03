@@ -49,6 +49,17 @@ public class User {
     @JsonIgnore
     private List<User> following = new ArrayList<>();
 
+    @ManyToMany(cascade = {CascadeType.ALL})
+    @JsonIgnore
+    @JoinTable(name="friendrequests",
+            joinColumns = {@JoinColumn(name = "userId", referencedColumnName = "userId")},
+            inverseJoinColumns = {@JoinColumn(name = "friendId", referencedColumnName = "userId")})
+    private List<User> friendRequests = new ArrayList<>();
+
+    @ManyToMany(mappedBy = "friendRequests", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private List<User> friendsRequested = new ArrayList<>();
+
     @OneToMany(fetch = FetchType.LAZY, cascade = { CascadeType.ALL })
     @JoinColumn(name = "userId")
     private List<com.dtatkison.prayerrush.rushapi.model.List> lists = new ArrayList<>();
@@ -181,5 +192,21 @@ public class User {
 
     public void removeAllLists() {
         this.getLists().clear();
+    }
+
+    public List<User> getFriendRequests() {
+        return friendRequests;
+    }
+
+    public void setFriendRequests(List<User> friendRequests) {
+        this.friendRequests = friendRequests;
+    }
+
+    public List<User> getFriendsRequested() {
+        return friendsRequested;
+    }
+
+    public void setFriendsRequested(List<User> friendsRequested) {
+        this.friendsRequested = friendsRequested;
     }
 }

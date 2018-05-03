@@ -81,18 +81,48 @@ public class UserController {
     @PostMapping("/friends")
     public List<User> getUserFriends(@RequestBody final User user)
     {
-        List<User> u = this.userService.getUserFollowers(user.getEmail());
-
-        for (User newUser: u) {
-            System.out.println(user.getUsername());
-        }
-
         return this.userService.getUserFollowers(user.getEmail());
     }
 
     @PostMapping("/friend/add/{email}")
-    public List<User> addUserFriends(@RequestBody User friend, @PathVariable("email") String email)
+    public List<User> addUserFriends(@RequestBody final User friend, @PathVariable("email") String email)
     {
         return this.userService.addUserFollowers(email, friend);
+    }
+
+    @PostMapping("/friend/requests")
+    public List<User> getPendingFriendRequests(@RequestBody final User friend)
+    {
+        return this.userService.getPendingFriendRequests(friend.getEmail());
+    }
+
+    @PostMapping("/friend/requested")
+    public List<User> getPendingFriendsRequested(@RequestBody final User friend)
+    {
+        return this.userService.getPendingFriendsRequested(friend.getEmail());
+    }
+
+    @PostMapping("/friend/requests/add/{email}")
+    public List<User> addPendingFriendRequests(@RequestBody final User friend, @PathVariable("email") String email)
+    {
+        return this.userService.addPendingFriendRequest(email, friend);
+    }
+
+    @PostMapping("/friend/requests/remove/{email}")
+    public List<User> removePendingFriendRequests(@RequestBody final User friend, @PathVariable("email") String email)
+    {
+        return this.userService.removePendingFriendRequests(email, friend);
+    }
+
+    @PostMapping("/friend/remove/{email}")
+    public List<User> removeUserFriends(@RequestBody User friend, @PathVariable("email") String email)
+    {
+        return this.userService.removeUserFollowers(email, friend);
+    }
+
+    @PostMapping("/friend/acceptPending/{email}")
+    public List<User> acceptUserFriends(@RequestBody User friend, @PathVariable("email") String email)
+    {
+        return this.userService.acceptFriendRequest(email, friend);
     }
 }

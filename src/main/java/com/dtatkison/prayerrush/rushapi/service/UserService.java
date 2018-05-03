@@ -88,6 +88,7 @@ public class UserService {
         return resultU;
     }
 
+    //get user followers
     public List<User> getUserFollowers(String email)
     {
             //with the user id, get the
@@ -102,6 +103,11 @@ public class UserService {
         return user.get().getFollowers();
     }
 
+    /**
+    * Returns a List of users once you add a new friend to a specific user.
+    * @Param mainEmail This is the email of the logged in user.
+    * @Param follower This is a user Object of the user that will become friends with logged in user
+    * @return List of the users friends*/
     public List<User> addUserFollowers(String mainEmail, User follower)
     {
         Optional<User> user = this.userRepository.findByEmail(mainEmail);
@@ -118,12 +124,131 @@ public class UserService {
             this.userRepository.save(u);
             this.userRepository.save(friendUser.get());
 
-            Gson gson = new Gson();
-            String json = gson.toJson(new UserService.Success("Success"));
             return u.getFollowers();
         } else {
             throw new UserException("User is already friends with that person");
         }
+    }
+
+    public List<User> removeUserFollowers(String mainEmail, User follower)
+    {
+        Optional<User> user = this.userRepository.findByEmail(mainEmail);
+        Optional<User> friendUser = this.userRepository.findByEmail(follower.getEmail());
+        user.orElseThrow(() -> new UserException("Main user not found"));
+        user.orElseThrow(() -> new UserException("Friend User not found"));
+
+        if(user.get().getFollowers().contains(friendUser.get()))
+        {
+            user.get().getFollowers().remove(friendUser.get());
+            friendUser.get().getFollowers().remove(user.get());
+            this.userRepository.save(user.get());
+            this.userRepository.save(friendUser.get());
+
+            return user.get().getFollowers();
+        } else {
+            throw new UserException("User isn't friends with that person");
+        }
+    }
+
+    //user and his pending friend requests
+    /**
+     * add pending friend requests to a given user
+     * @Param mainEmail This is the email of the logged in user
+     * @Param pendingFriend this is the user obj of the friend that you want to send a request to
+     * @return return a list of users that you are pending friends with
+     */
+    public List<User> addPendingFriendRequest(String mainEmail, User pendingFriend)
+    {
+        Optional<User> user = this.userRepository.findByEmail(mainEmail);
+        Optional<User> friendUser = this.userRepository.findByEmail(pendingFriend.getEmail());
+        user.orElseThrow(() -> new UserException("Main user not found"));
+        user.orElseThrow(() -> new UserException("Friend User not found"));
+
+        if(!user.get().getFollowers().contains(friendUser.get()) && !user.get().getFriendRequests().contains(friendUser.get()))
+        {
+            user.get().getFriendsRequested().add(friendUser.get());
+            friendUser.get().getFriendRequests().add(user.get());
+            this.userRepository.save(user.get());
+            this.userRepository.save(friendUser.get());
+
+            return getUserFollowers(user.get().getEmail());
+        } else {
+            throw new UserException("User is already friends with that person or they have a pending request");
+        }
+    }
+
+    public List<User> getPendingFriendRequests(String email)
+    {
+        Optional<User> user = this.userRepository.findByEmail(email);
+        user.orElseThrow(() -> new UserException("User not found"));
+        for (User tempUser: user.get().getFriendRequests()) {
+            tempUser.removeAllLists();
+            tempUser.setPassword("");
+            tempUser.setSalt("");
+        }
+
+        return user.get().getFriendRequests();
+    }
+
+    public List<User> getPendingFriendsRequested(String email)
+    {
+        Optional<User> user = this.userRepository.findByEmail(email);
+        user.orElseThrow(() -> new UserException("User not found"));
+        for (User tempUser: user.get().getFriendsRequested()) {
+            tempUser.removeAllLists();
+            tempUser.setPassword("");
+            tempUser.setSalt("");
+        }
+
+        return user.get().getFriendsRequested();
+    }
+
+    public List<User> removePendingFriendRequests(String mainUser, User pendingFriend)
+    {
+        Optional<User> user = this.userRepository.findByEmail(mainUser);
+        Optional<User> friendUser = this.userRepository.findByEmail(pendingFriend.getEmail());
+        user.orElseThrow(() -> new UserException("Main user not found"));
+        user.orElseThrow(() -> new UserException("Friend User not found"));
+
+        if(user.get().getFriendRequests().contains(friendUser.get()))
+        {
+            user.get().getFriendRequests().remove(friendUser.get());
+            friendUser.get().getFriendsRequested().remove(user.get());
+            this.userRepository.save(user.get());
+            this.userRepository.save(friendUser.get());
+
+            return getPendingFriendRequests(user.get().getEmail());
+        } else {
+            throw new UserException("User isn't requesting to be friends");
+        }
+    }
+
+    public List<User> acceptFriendRequest(String mainUser, User pendingFriend)
+    {
+        //accept friend request
+        //This method will delete the pending request and add to the
+        Optional<User> user = this.userRepository.findByEmail(mainUser);
+        Optional<User> friendUser = this.userRepository.findByEmail(pendingFriend.getEmail());
+        user.orElseThrow(() -> new UserException("Main user not found"));
+        user.orElseThrow(() -> new UserException("Friend User not found"));
+
+        if(user.get().getFriendRequests().contains(friendUser.get()))
+        {
+            //Remove
+            user.get().getFriendRequests().remove(friendUser.get());
+            friendUser.get().getFriendsRequested().remove(user.get());
+
+            user.get().getFollowers().add(friendUser.get());
+            friendUser.get().getFollowers().add(user.get());
+
+            this.userRepository.save(user.get());
+            this.userRepository.save(friendUser.get());
+
+        } else {
+            throw new UserException("Failure accepting request");
+        }
+
+        return null;
     }
 
     public class Success
