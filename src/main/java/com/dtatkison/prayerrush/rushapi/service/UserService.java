@@ -101,7 +101,7 @@ public class UserService {
             if(user.getEmail().equals(tempUser.getEmail()))
                 return users;
 
-        for(User tempUser: friends) 
+        for(User tempUser: friends)
             if(user.getEmail().equals(tempUser.getEmail()))
                 return users;
 
