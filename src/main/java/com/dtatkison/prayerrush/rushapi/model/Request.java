@@ -27,6 +27,11 @@ public class Request {
         this.date = date;
     }
 
+    public Request(Request request) {
+        this.description = request.description;
+        this.date = request.getDate();
+    }
+
     public Integer getRequestId() {
         return requestId;
     }

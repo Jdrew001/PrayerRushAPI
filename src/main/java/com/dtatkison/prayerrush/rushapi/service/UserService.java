@@ -31,6 +31,11 @@ public class UserService {
         this.passwordUtils = passwordUtils;
     }
 
+    /**
+     * This is called when the application is registering a user
+     * @Param email - the new users email address
+     * @Param password - this is the users password passed in
+     * @Return User - this is the user object*/
     public User registerUser(String email, String password)
     {
         //check to see if email already exists
@@ -51,6 +56,11 @@ public class UserService {
         return newUser.map(JwtUserDetails::new).get();
     }
 
+    /**
+     * Load the user by email and password
+     * @Param Email - the email of the user
+     * @Param Password - this is the password of the user
+     * Returns User - user object that is returned*/
     public User loadByEmailAndPassword(String email, String password) throws EmailNotFoundException
     {
         Optional<User> user = userRepository.findByEmail(email);
@@ -64,6 +74,10 @@ public class UserService {
         return user.map(JwtUserDetails::new).get();
     }
 
+    /**
+     * Load the user by his email
+     * @Param Email - this is the email of the user that we want load
+     * @Returns User - the user object from the database*/
     public User loadByEmail(String email)
     {
         Optional<User> user = userRepository.findByEmail(email);
@@ -72,6 +86,18 @@ public class UserService {
         return user.map(JwtUserDetails::new).get();
     }
 
+    public User getUser(String email)
+    {
+        Optional<User> user = userRepository.findByEmail(email);
+        user.orElseThrow(() -> new EmailNotFoundException("The email address given was not found"));
+
+        return user.get();
+    }
+
+    /**
+     * Updates the user information
+     * @Param User - this is the user that we want to update
+     * @Returns User - this is the user we wanted to update*/
     public User updateUserInformation(User user)
     {
         Optional<User> u = this.userRepository.findByEmail(user.getEmail());
@@ -88,6 +114,13 @@ public class UserService {
         return resultU;
     }
 
+    /**
+     * Search through a list of users through an email address
+     * If the user is friends with the user then return an empty List
+     * Also don't return the main user (logged in user)
+     * @Param User user - the user that you want to search
+     * @Param email - the user logged in
+     * @Returns List of user - only return one user in a list*/
     public List<User> searchedUsers(User user, String email)
     {
         List<User> users = new ArrayList<>();
@@ -115,10 +148,14 @@ public class UserService {
             return users;
     }
 
-    //get user followers
+    /**
+     * Returns a list of users. This is the users friends.
+     * @Param email - this the logged in user's email
+     * @Return List of users - this is the users followers
+     * */
     public List<User> getUserFollowers(String email)
     {
-            //with the user id, get the
+        //with the user id, get the
         Optional<User> user = this.userRepository.findByEmail(email);
         user.orElseThrow(() -> new UserException("User not found"));
         for (User tempUser: user.get().getFollowers()) {
@@ -157,6 +194,11 @@ public class UserService {
         }
     }
 
+    /**
+     * Remove a friend of a given user
+     * @Param mainEmail - this is the email of logged in user
+     * @Param follower - this is the user that the logged in user doesn't want to be friends with
+     * @Return Users - Return all the friends of the main user*/
     public List<User> removeUserFollowers(String mainEmail, User follower)
     {
         Optional<User> user = this.userRepository.findByEmail(mainEmail);
@@ -177,9 +219,8 @@ public class UserService {
         }
     }
 
-    //user and his pending friend requests
     /**
-     * add pending friend requests to a given user
+     * add pending friend request to a given user
      * @Param mainEmail This is the email of the logged in user
      * @Param pendingFriend this is the user obj of the friend that you want to send a request to
      * @return return a list of users that you are pending friends with
@@ -204,6 +245,10 @@ public class UserService {
         }
     }
 
+    /**
+     * Return the friend requests of the main logged in user
+     * @Param email - this is the logged in user's email that will be used to retrieve the data
+     * @Return Users - The list of users that is wanting to be friends with main user*/
     public List<User> getPendingFriendRequests(String email)
     {
         Optional<User> user = this.userRepository.findByEmail(email);
@@ -217,6 +262,10 @@ public class UserService {
         return user.get().getFriendRequests();
     }
 
+    /**
+     * Return the users that the main logged in user has requested to be friends with
+     * @Param email - email of the main user that is logged in
+     * @Returns List of users - these are the users the main user has requested to be friends with*/
     public List<User> getPendingFriendsRequested(String email)
     {
         Optional<User> user = this.userRepository.findByEmail(email);
@@ -230,6 +279,11 @@ public class UserService {
         return user.get().getFriendsRequested();
     }
 
+    /**
+     * Removes or (declines) a friend request for the logged in user (main user)
+     * @Param mainUser - this is the logged in user's email address
+     * @Param pendingFriend - this is the friend that is requesting friendship
+     * @Returns users - return the list of pending requests to the mainUser*/
     public List<User> removePendingFriendRequests(String mainUser, User pendingFriend)
     {
         Optional<User> user = this.userRepository.findByEmail(mainUser);
@@ -250,6 +304,11 @@ public class UserService {
         }
     }
 
+    /**
+     * Main user accepts a friend requests
+     * @Param mainUser - the user that is logged in making the requests
+     * @Param pendingFriend - the user that is requesting friendship
+     * @Returns Returns null - return null*/
     public List<User> acceptFriendRequest(String mainUser, User pendingFriend)
     {
         //accept friend request
@@ -275,7 +334,7 @@ public class UserService {
             throw new UserException("Failure accepting request");
         }
 
-        return null;
+        return null; //TODO: return a list of user friends or a success message
     }
 
     public class Success

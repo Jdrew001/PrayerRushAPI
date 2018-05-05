@@ -19,7 +19,8 @@ public class SchedulerConfig {
         System.out.println("Sending");
         Gson gson = new Gson();
 
-        template.convertAndSend("/push", gson.toJson(new Greeting("testing")));
+        //template.convertAndSend("/push", gson.toJson(new Greeting("Sent to dtatkison@gmail.com")));
+        //template.convertAndSendToUser("dtatkison@gmail.com","/push", gson.toJson(new Greeting("testing")));
     }
 
     public class Greeting

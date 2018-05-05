@@ -11,7 +11,7 @@ public class JwtGenerator {
     public String generate(User user)
     {
         Claims claims = Jwts.claims()
-                .setSubject(user.getUsername());
+                .setSubject(user.getEmail());
         claims.put("userId", String.valueOf(user.getId()));
         claims.put("email", user.getEmail());
         claims.put("firstname", user.getFirstname());

@@ -68,6 +68,10 @@ public class User {
     @JoinColumn(name = "userId")
     private List<Goal> goals = new ArrayList<>();
 
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "userId")
+    private List<Request> requests = new ArrayList<>();
+
     public User() {}
 
     public User(Integer id, String firstname, String lastname, String username, String email)
@@ -208,5 +212,17 @@ public class User {
 
     public void setFriendsRequested(List<User> friendsRequested) {
         this.friendsRequested = friendsRequested;
+    }
+
+    public List<Request> getRequests() {
+        return requests;
+    }
+
+    public void setRequests(List<Request> requests) {
+        this.requests = requests;
+    }
+
+    public void removeAllRequests() {
+        this.getRequests().clear();
     }
 }
