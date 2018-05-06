@@ -1,20 +1,16 @@
 package com.dtatkison.prayerrush.rushapi.service;
 
-import com.dtatkison.prayerrush.rushapi.controller.LoginController;
+import com.dtatkison.prayerrush.rushapi.model.DAO.FriendDAO;
 import com.dtatkison.prayerrush.rushapi.model.JwtUserDetails;
 import com.dtatkison.prayerrush.rushapi.model.User;
+import com.dtatkison.prayerrush.rushapi.model.json.FriendRequestResponse;
 import com.dtatkison.prayerrush.rushapi.repository.UserRepository;
 import com.dtatkison.prayerrush.rushapi.security.ExceptionHandling.*;
 import com.dtatkison.prayerrush.rushapi.security.PasswordUtils;
-import com.google.gson.Gson;
-import org.hibernate.dialect.Ingres9Dialect;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
-import javax.persistence.EntityManager;
-import javax.swing.text.html.Option;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -23,6 +19,9 @@ import java.util.Optional;
 public class UserService {
     private UserRepository userRepository;
     private PasswordUtils passwordUtils;
+
+    @Autowired
+    SimpMessagingTemplate template;
 
     @Autowired
     public UserService(UserRepository userRepository, PasswordUtils passwordUtils)
@@ -178,7 +177,7 @@ public class UserService {
         Optional<User> friendUser = this.userRepository.findByEmail(follower.getEmail());
 
         user.orElseThrow(() -> new UserException("Main user not found"));
-        user.orElseThrow(() -> new UserException("Friend User not found"));
+        user.orElseThrow(() -> new UserException("FriendDAO User not found"));
         User u = user.get();
 
         if(!u.getFollowers().contains(friendUser.get()))
@@ -204,7 +203,7 @@ public class UserService {
         Optional<User> user = this.userRepository.findByEmail(mainEmail);
         Optional<User> friendUser = this.userRepository.findByEmail(follower.getEmail());
         user.orElseThrow(() -> new UserException("Main user not found"));
-        user.orElseThrow(() -> new UserException("Friend User not found"));
+        user.orElseThrow(() -> new UserException("FriendDAO User not found"));
 
         if(user.get().getFollowers().contains(friendUser.get()))
         {
@@ -230,12 +229,18 @@ public class UserService {
         Optional<User> user = this.userRepository.findByEmail(mainEmail);
         Optional<User> friendUser = this.userRepository.findByEmail(pendingFriend.getEmail());
         user.orElseThrow(() -> new UserException("Main user not found"));
-        user.orElseThrow(() -> new UserException("Friend User not found"));
+        user.orElseThrow(() -> new UserException("FriendDAO User not found"));
 
         if(!user.get().getFollowers().contains(friendUser.get()) && !user.get().getFriendRequests().contains(friendUser.get()))
         {
             user.get().getFriendsRequested().add(friendUser.get());
             friendUser.get().getFriendRequests().add(user.get());
+            FriendDAO friendDAO = new FriendDAO(friendUser.get().getFirstname(), friendUser.get().getLastname(), friendUser.get().getEmail());
+
+            this.template.convertAndSend("/friend/"+friendUser.get().getEmail(),
+                    new FriendRequestResponse(friendDAO,
+                            "New Friend Request",friendUser.get().getFirstname() + " " + friendUser.get().getLastname() + " has requested to be your friend!"));
+
             this.userRepository.save(user.get());
             this.userRepository.save(friendUser.get());
 
@@ -289,7 +294,7 @@ public class UserService {
         Optional<User> user = this.userRepository.findByEmail(mainUser);
         Optional<User> friendUser = this.userRepository.findByEmail(pendingFriend.getEmail());
         user.orElseThrow(() -> new UserException("Main user not found"));
-        user.orElseThrow(() -> new UserException("Friend User not found"));
+        user.orElseThrow(() -> new UserException("FriendDAO User not found"));
 
         if(user.get().getFriendRequests().contains(friendUser.get()))
         {
@@ -316,7 +321,7 @@ public class UserService {
         Optional<User> user = this.userRepository.findByEmail(mainUser);
         Optional<User> friendUser = this.userRepository.findByEmail(pendingFriend.getEmail());
         user.orElseThrow(() -> new UserException("Main user not found"));
-        user.orElseThrow(() -> new UserException("Friend User not found"));
+        user.orElseThrow(() -> new UserException("FriendDAO User not found"));
 
         if(user.get().getFriendRequests().contains(friendUser.get()))
         {
@@ -326,6 +331,11 @@ public class UserService {
 
             user.get().getFollowers().add(friendUser.get());
             friendUser.get().getFollowers().add(user.get());
+            FriendDAO friendDAO = new FriendDAO(friendUser.get().getFirstname(), friendUser.get().getLastname(), friendUser.get().getEmail());
+
+            this.template.convertAndSend("/friend/"+friendUser.get().getEmail(),
+                    new FriendRequestResponse(friendDAO,
+                            "New Friendship",user.get().getFirstname() + " " + user.get().getLastname() + " has accepted your request!"));
 
             this.userRepository.save(user.get());
             this.userRepository.save(friendUser.get());

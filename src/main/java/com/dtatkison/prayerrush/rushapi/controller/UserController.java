@@ -1,7 +1,6 @@
 package com.dtatkison.prayerrush.rushapi.controller;
 
 import com.dtatkison.prayerrush.rushapi.model.User;
-import com.dtatkison.prayerrush.rushapi.model.json.Friend;
 import com.dtatkison.prayerrush.rushapi.model.json.Response;
 import com.dtatkison.prayerrush.rushapi.security.JwtGenerator;
 import com.dtatkison.prayerrush.rushapi.service.UserService;
