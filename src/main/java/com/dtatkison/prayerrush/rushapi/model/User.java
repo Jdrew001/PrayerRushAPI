@@ -68,7 +68,7 @@ public class User {
     @JoinColumn(name = "userId")
     private List<Goal> goals = new ArrayList<>();
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "userId")
     private List<Request> requests = new ArrayList<>();
 
